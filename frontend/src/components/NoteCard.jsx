@@ -1,8 +1,25 @@
 import { PenSquareIcon, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import { formatDate } from "../lib/utils";
+import api from "../lib/axios";
+import toast from "react-hot-toast";
 
-const NoteCard = ({ note }) => {
+const NoteCard = ({ note, setNotes }) => {
+  const handleDelete = async (e, noteId) => {
+    e.preventDefault();
+
+    if (!window.confirm("Are you sure you want to delete this note?"))
+      return;
+
+    try {
+      await api.delete(`/notes/${noteId}`);
+      setNotes((prev) => prev.filter((note) => note._id !== noteId));
+      toast.success("Note has been deleted");
+    } catch (error) {
+      console.log("Error:", error);
+      toast.error("Error deleting note");
+    }
+  };
   return (
     <Link
       to={`/note/${note._id}`}
@@ -19,7 +36,10 @@ const NoteCard = ({ note }) => {
           </span>
           <div className="flex items-center gap-1">
             <PenSquareIcon className="size-4" />
-            <button className="btn btn-ghost btn-xs text-error">
+            <button
+              className="btn btn-ghost btn-xs text-error"
+              onClick={(e) => handleDelete(e, note._id)}
+            >
               <Trash2 className="size-4" />
             </button>
           </div>
